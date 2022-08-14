@@ -1,15 +1,43 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id String @id @default(cuid())
+model Team {
+    id           String        @id @default(cuid())
+    name         String
+    image        String
+    home_matches Match[]       @relation("home_team")
+    away_matches Match[]       @relation("away_team")
+    competition  Competition[]
+}
+
+model Match {
+    id             String      @id @default(cuid())
+    home_team      Team        @relation(name: "home_team", fields: [home_team_id], references: [id])
+    home_team_id   String
+    away_team      Team        @relation(name: "away_team", fields: [away_team_id], references: [id])
+    away_team_id   String
+    competition    Competition @relation(fields: [competition_id], references: [id])
+    competition_id String
+    date           DateTime
+    channel        Channel[]
+}
+
+model Competition {
+    id      String  @id @default(cuid())
+    name    String
+    matches Match[]
+    Team    Team[]
+}
+
+model Channel {
+    id      String  @id @default(cuid())
+    name    String
+    country String
+    matches Match[]
 }
